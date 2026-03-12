@@ -5,9 +5,14 @@ from typing import List, Optional
 import httpx
 import json
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # ─── CONFIG ──────────────────────────────────────────────────────────────────
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyA7jTc7nKmG0vralQRARwHQp9pe3SREmUw").strip()
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
+if not GEMINI_API_KEY:
+    raise RuntimeError("GEMINI_API_KEY environment variable is not set. Add it to your .env file.")
 GEMINI_MODEL   = os.getenv("GEMINI_MODEL", "gemini-flash-latest").strip()
 GEMINI_URL     = (
     f"https://generativelanguage.googleapis.com/v1beta/models/"
