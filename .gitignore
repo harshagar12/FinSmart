@@ -1,0 +1,74 @@
+# -----------------------------
+# OS / Editor
+# -----------------------------
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# -----------------------------
+# Environment / Secrets
+# -----------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+
+# -----------------------------
+# Python (API)
+# -----------------------------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.venv/
+venv/
+env/
+ENV/
+htmlcov/
+.coverage
+.coverage.*
+
+# Local DB / runtime files
+*.db
+*.sqlite
+*.sqlite3
+*.log
+
+# -----------------------------
+# Node / Frontend (Vite/React)
+# -----------------------------
+node_modules/
+dist/
+build/
+.vite/
+coverage/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Keep generated lint reports out of VCS
+eslint-report.txt
+eslint-report.json
+
+# -----------------------------
+# Project-specific paths
+# -----------------------------
+api/__pycache__/
+api/venv/
+api/.venv/
+app/node_modules/
+app/dist/
+app/investease/node_modules/
+app/investease/dist/
