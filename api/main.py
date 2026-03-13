@@ -424,30 +424,67 @@ async def get_market_data(category: str):
     results = []
     
     if category == "crypto":
-        # Fetch top 50 from CoinGecko
+        # Fetch top 50 from CoinGecko with retry logic and exponential backoff
         url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1&sparkline=true&price_change_percentage=1h%2C24h%2C7d"
-        try:
-            async with httpx.AsyncClient() as client:
-                r = await client.get(url, timeout=10)
-                r.raise_for_status()
-                data = r.json()
-                
-                for coin_data in data:
-                    sparkline = coin_data.get("sparkline_in_7d", {}).get("price", [])
-                    pcp = coin_data.get("price_change_percentage_1h_in_currency")
-                    results.append({
-                        "symbol": coin_data.get("symbol", "").upper(),
-                        "label": coin_data.get("name"),
-                        "price": coin_data.get("current_price"),
-                        "change_pct_1h": round(pcp, 2) if pcp is not None else None,
-                        "change_pct_24h": round(coin_data.get("price_change_percentage_24h", 0) or 0, 2),
-                        "change_pct_7d": round(coin_data.get("price_change_percentage_7d_in_currency", 0) or 0, 2),
-                        "currency": "USD",
-                        "exchange": "Crypto",
-                        "sparkline": [round(p, 2) for p in sparkline] if sparkline else []
-                    })
-        except Exception as e:
-            print(f"CoinGecko fetch error: {e}")
+        max_retries = 3
+        retry_delay = 1  # Start with 1 second delay
+        
+        for attempt in range(max_retries):
+            try:
+                async with httpx.AsyncClient() as client:
+                    # Add headers to identify the request
+                    headers = {
+                        "User-Agent": "FinSmart-API/1.0"
+                    }
+                    r = await client.get(url, timeout=15, headers=headers)
+                    
+                    # Check for rate limiting
+                    if r.status_code == 429:
+                        if attempt < max_retries - 1:
+                            wait_time = retry_delay * (2 ** attempt)
+                            print(f"Rate limited (429). Retrying in {wait_time}s (attempt {attempt + 1}/{max_retries})")
+                            await asyncio.sleep(wait_time)
+                            continue
+                        else:
+                            print("Max retries exceeded for CoinGecko API. Using cached data if available.")
+                            break
+                    
+                    r.raise_for_status()
+                    data = r.json()
+                    
+                    for coin_data in data:
+                        sparkline = coin_data.get("sparkline_in_7d", {}).get("price", [])
+                        pcp = coin_data.get("price_change_percentage_1h_in_currency")
+                        results.append({
+                            "symbol": coin_data.get("symbol", "").upper(),
+                            "label": coin_data.get("name"),
+                            "price": coin_data.get("current_price"),
+                            "change_pct_1h": round(pcp, 2) if pcp is not None else None,
+                            "change_pct_24h": round(coin_data.get("price_change_percentage_24h", 0) or 0, 2),
+                            "change_pct_7d": round(coin_data.get("price_change_percentage_7d_in_currency", 0) or 0, 2),
+                            "currency": "USD",
+                            "exchange": "Crypto",
+                            "sparkline": [round(p, 2) for p in sparkline] if sparkline else []
+                        })
+                    # Success - break out of retry loop
+                    break
+                    
+            except httpx.HTTPStatusError as e:
+                if e.response.status_code == 429:
+                    if attempt < max_retries - 1:
+                        wait_time = retry_delay * (2 ** attempt)
+                        print(f"Rate limited (429). Retrying in {wait_time}s (attempt {attempt + 1}/{max_retries})")
+                        await asyncio.sleep(wait_time)
+                    else:
+                        print("Max retries exceeded for CoinGecko API")
+                else:
+                    print(f"HTTP Error {e.response.status_code}: {e}")
+                    break
+            except Exception as e:
+                print(f"CoinGecko fetch error (attempt {attempt + 1}/{max_retries}): {e}")
+                if attempt < max_retries - 1:
+                    wait_time = retry_delay * (2 ** attempt)
+                    await asyncio.sleep(wait_time)
                 
         cache_set(category, results)
         return {"category": category, "data": results, "cached": False}
