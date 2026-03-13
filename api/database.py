@@ -14,6 +14,10 @@ if DATABASE_URL.startswith("postgres://"):
 engine_kwargs = {}
 if DATABASE_URL.startswith("sqlite"):
     engine_kwargs["connect_args"] = {"check_same_thread": False}
+else:
+    # Avoid blocking startup indefinitely when remote DB is unreachable.
+    engine_kwargs["connect_args"] = {"connect_timeout": int(os.getenv("DB_CONNECT_TIMEOUT", "10"))}
+    engine_kwargs["pool_pre_ping"] = True
 
 engine = create_engine(DATABASE_URL, **engine_kwargs)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

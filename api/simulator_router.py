@@ -10,9 +10,13 @@ from models import User, Transaction, Holding, PortfolioSnapshot
 from schemas import UserAuth, TokenResponse, TradeRequest, HoldingOut, TransactionOut
 from auth import hash_password, verify_password, create_access_token, get_current_user
 
-# Create new tables and safely migrate existing ones
-Base.metadata.create_all(bind=engine)
-run_migrations()
+# Create new tables and safely migrate existing ones.
+# If DB is temporarily unavailable, let the API start and log the issue.
+try:
+    Base.metadata.create_all(bind=engine)
+    run_migrations()
+except Exception as e:
+    print(f"Simulator DB init warning: {e}")
 
 router = APIRouter(prefix="/api/simulator", tags=["simulator"])
 
