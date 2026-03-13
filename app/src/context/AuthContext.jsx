@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { apiUrl } from '../lib/api';
 
 const AuthContext = createContext();
 
@@ -19,7 +20,7 @@ export const AuthProvider = ({ children }) => {
 
   const fetchUser = async (authToken) => {
     try {
-      const response = await fetch('/api/simulator/me', {
+      const response = await fetch(apiUrl('/api/simulator/me'), {
         headers: { Authorization: `Bearer ${authToken}` }
       });
       if (response.ok) {
@@ -37,7 +38,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const login = async (email, password) => {
-    const res = await fetch('/api/simulator/login', {
+    const res = await fetch(apiUrl('/api/simulator/login'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password })
@@ -50,7 +51,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const register = async (email, password) => {
-    const res = await fetch('/api/simulator/register', {
+    const res = await fetch(apiUrl('/api/simulator/register'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password })

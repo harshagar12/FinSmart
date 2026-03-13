@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { cn } from '../../lib/utils';
+import { apiUrl } from '../../lib/api';
 
 export default function Chatbot() {
   const [messages, setMessages] = useState([
@@ -39,7 +40,7 @@ export default function Chatbot() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/chat', {
+      const response = await fetch(apiUrl('/api/chat'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: text, history: messages.map(m => ({ role: m.role, content: m.content })) })

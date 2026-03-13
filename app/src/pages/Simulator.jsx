@@ -13,6 +13,7 @@ import {
 } from 'recharts';
 import { cn } from '../lib/utils';
 import { useAuth } from '../context/AuthContext';
+import { apiUrl } from '../lib/api';
 
 const INITIAL_CASH = 100000;
 const ITEMS_PER_PAGE_MARKET = 10;
@@ -545,7 +546,7 @@ export default function Simulator({ onNavigate }) {
     setIsLoading(true);
     try {
       const [stocksRes, cryptoRes] = await Promise.all([
-        fetch('/api/market-data/stocks'), fetch('/api/market-data/crypto')
+        fetch(apiUrl('/api/market-data/stocks')), fetch(apiUrl('/api/market-data/crypto'))
       ]);
       const stocks = await stocksRes.json();
       const cryptos = await cryptoRes.json();
@@ -573,21 +574,21 @@ export default function Simulator({ onNavigate }) {
 
   const fetchPortfolio = async () => {
     try {
-      const res = await fetch('/api/simulator/portfolio', { headers: { Authorization: `Bearer ${token}` } });
+      const res = await fetch(apiUrl('/api/simulator/portfolio'), { headers: { Authorization: `Bearer ${token}` } });
       if (res.ok) setHoldings(await res.json());
     } catch (e) { console.error(e); }
   };
 
   const fetchHistory = async () => {
     try {
-      const res = await fetch('/api/simulator/history', { headers: { Authorization: `Bearer ${token}` } });
+      const res = await fetch(apiUrl('/api/simulator/history'), { headers: { Authorization: `Bearer ${token}` } });
       if (res.ok) setHistory(await res.json());
     } catch (e) { console.error(e); }
   };
 
   const fetchSnapshots = async () => {
     try {
-      const res = await fetch('/api/simulator/snapshots', { headers: { Authorization: `Bearer ${token}` } });
+      const res = await fetch(apiUrl('/api/simulator/snapshots'), { headers: { Authorization: `Bearer ${token}` } });
       if (res.ok) setPortfolioHistory(await res.json());
     } catch (e) { console.error(e); }
   };
@@ -644,7 +645,7 @@ export default function Simulator({ onNavigate }) {
     setPortfolioHistory(prev => [...prev, entry]);
     // Persist to backend DB (survives browser close)
     try {
-      await fetch('/api/simulator/snapshots', {
+      await fetch(apiUrl('/api/simulator/snapshots'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ value })
@@ -656,7 +657,7 @@ export default function Simulator({ onNavigate }) {
     const qty = parseFloat(buyAmount[asset.id] || '0');
     if (qty <= 0) return;
     try {
-      const res = await fetch('/api/simulator/buy', {
+      const res = await fetch(apiUrl('/api/simulator/buy'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ asset_id: asset.id, symbol: asset.symbol, name: asset.name, type: asset.type, qty, current_price: asset.price })
@@ -676,7 +677,7 @@ export default function Simulator({ onNavigate }) {
     const qty = parseFloat(sellAmount[holding.assetId] || '0');
     if (qty <= 0) return;
     try {
-      const res = await fetch('/api/simulator/sell', {
+      const res = await fetch(apiUrl('/api/simulator/sell'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ asset_id: holding.assetId, symbol: holding.symbol, name: holding.name, type: holding.type, qty, current_price: holding.currentPrice })

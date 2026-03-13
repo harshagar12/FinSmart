@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { cn } from '../lib/utils';
+import { apiUrl } from '../lib/api';
 
 export default function Home({ onNavigate }) {
   const [salary, setSalary] = useState('');
@@ -36,7 +37,7 @@ export default function Home({ onNavigate }) {
     setSuggestion(null);
 
     try {
-      const response = await fetch('/api/affordability', {
+      const response = await fetch(apiUrl('/api/affordability'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ salary: s, emi: em, savings: sv, expenses: ex })

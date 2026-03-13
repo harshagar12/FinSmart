@@ -65,6 +65,16 @@ Create `api/.env` with:
 ```env
 GEMINI_API_KEY=your_gemini_api_key
 FINNHUB_API_KEY=your_finnhub_api_key
+DATABASE_URL=postgresql://user:password@host:5432/dbname
+JWT_SECRET=replace_with_a_long_random_secret
+JWT_ALGORITHM=HS256
+JWT_EXPIRE_MINUTES=10080
+```
+
+Create `app/.env` with:
+
+```env
+VITE_API_BASE_URL=http://127.0.0.1:8000
 ```
 
 ## Setup and Run
@@ -118,3 +128,34 @@ npm run lint
 - Do not commit secrets or `.env` files.
 - Generated outputs and caches are excluded by `.gitignore`.
 - If calculations look stale, restart frontend dev server after code changes.
+
+## Deployment
+
+### Backend on Render
+
+This repo includes `render.yaml` at project root. Render will use:
+
+- `rootDir`: `api`
+- Build command: `pip install -r requirements.txt`
+- Start command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+
+Required Render environment variables:
+
+- `GEMINI_API_KEY`
+- `FINNHUB_API_KEY`
+- `DATABASE_URL`
+- `JWT_SECRET`
+
+Optional Render environment variables:
+
+- `JWT_ALGORITHM` (default `HS256`)
+- `JWT_EXPIRE_MINUTES` (default `10080`)
+
+### Frontend on Vercel
+
+Deploy from the `app/` folder (set Vercel project Root Directory to `app`).
+This repo includes `app/vercel.json` for Vite build and SPA routing fallback.
+
+Required Vercel environment variables:
+
+- `VITE_API_BASE_URL` = your Render backend URL, for example `https://finsmart-api.onrender.com`

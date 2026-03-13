@@ -3,6 +3,7 @@ import { TrendingUp, TrendingDown, Bitcoin, BarChart3, Activity, Coins } from 'l
 import { AreaChart, Area, ResponsiveContainer } from 'recharts';
 import { motion } from 'motion/react';
 import { cn } from '../../lib/utils';
+import { apiUrl } from '../../lib/api';
 
 const portfolioData = [
   { name: 'Mon', value: 4000 },
@@ -34,7 +35,7 @@ export default function LiveMarket() {
       try {
         const categoriesToFetch = ['stocks', 'indices', 'metals', 'crypto'];
         const responses = await Promise.all(
-          categoriesToFetch.map(cat => fetch(`/api/market-data/${cat}`).then(res => res.json()))
+          categoriesToFetch.map(cat => fetch(apiUrl(`/api/market-data/${cat}`)).then(res => res.json()))
         );
         
         const topFour = responses.map(res => {
@@ -73,7 +74,7 @@ export default function LiveMarket() {
       setIsLoading(true);
       try {
         const cat = selectedCategory.toLowerCase();
-        const response = await fetch(`/api/market-data/${cat}`);
+        const response = await fetch(apiUrl(`/api/market-data/${cat}`));
         const result = await response.json();
         
         if (result.data) {

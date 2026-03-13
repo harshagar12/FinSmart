@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Search, Sparkles, BookOpen, Scaling, CheckCircle2, ArrowLeft, TrendingUp, ShieldAlert } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../../lib/utils';
+import { apiUrl } from '../../lib/api';
 
 const HARDCODED_JARGONS = [
   {
@@ -208,7 +209,7 @@ export default function Dictionary() {
     setResult(null);
 
     try {
-      const response = await fetch('/api/ask-ai', {
+      const response = await fetch(apiUrl('/api/ask-ai'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query })
