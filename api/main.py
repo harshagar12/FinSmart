@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import List, Optional
 import os
@@ -12,6 +13,7 @@ import yfinance as yf
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 from simulator_router import router as sim_router
+from sqlalchemy.exc import SQLAlchemyError
 
 load_dotenv()
 
@@ -30,6 +32,16 @@ app.add_middleware(
 )
 
 app.include_router(sim_router)
+
+
+@app.exception_handler(SQLAlchemyError)
+async def sqlalchemy_error_handler(request, exc):
+    return JSONResponse(
+        status_code=503,
+        content={
+            "detail": "Database is temporarily unavailable. Please try again shortly."
+        },
+    )
 
 class QueryRequest(BaseModel):
     query: str
