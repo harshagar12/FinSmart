@@ -145,6 +145,110 @@ async def check_affordability(req: AffordabilityRequest):
          print(f"Affordability Error: {str(e)}")
          raise HTTPException(status_code=500, detail="Failed to analyze affordability.")
 
+class CompareRequest(BaseModel):
+    amount: float
+    period: int
+    periodType: str
+
+@app.post("/api/compare-strategy")
+async def compare_strategy(req: CompareRequest):
+    try:
+        amount = req.amount
+        period = req.period
+        
+        # Standard Indian Market Rates
+        SIP_RATE = 12.0
+        LUMPSUM_RATE = 12.0
+        FD_RATE = 7.0
+        RD_RATE = 6.5
+        PPF_RATE = 7.1
+        
+        months = period * 12 if req.periodType == 'years' else period
+        years = months / 12
+        
+        monthly_rate_sip = SIP_RATE / 100 / 12
+        
+        # 1. SIP (Monthly contributions totaling 'amount')
+        monthly_sip = amount / months if months > 0 else 0
+        
+        sip_total_invested = amount
+        sip_value = 0
+        if months > 0:
+            sip_value = monthly_sip * (((1 + monthly_rate_sip) ** months - 1) / monthly_rate_sip) * (1 + monthly_rate_sip)
+            
+        # 2. Lumpsum 
+        lumpsum_value = amount * ((1 + LUMPSUM_RATE / 100) ** years)
+        
+        # 3. Fixed Deposit (Quarterly compounding)
+        quarters = months / 3
+        fd_value = amount * ((1 + (FD_RATE / 100) / 4) ** quarters)
+        
+        # 4. Recurring Deposit 
+        r_rd = RD_RATE / 400
+        rd_value = amount # fallback
+        if r_rd > 0 and months > 0:
+             monthly_rd = amount / months
+             fv = monthly_rd * ((pow(1 + r_rd, 4 * years) - 1) / (1 - pow(1 + r_rd, -1/3)))
+             rd_value = fv
+             
+        # 5. PPF (Yearly deposits)
+        ppf_value = amount
+        if years >= 1:
+             yearly_ppf = amount / years
+             val = 0
+             for _ in range(int(years)):
+                 val = (val + yearly_ppf) * (1 + PPF_RATE / 100)
+             ppf_value = val
+        
+        comparison_data = {
+            "amountInvested": round(amount),
+            "sipValue": round(sip_value),
+            "lumpsumValue": round(lumpsum_value),
+            "fdValue": round(fd_value),
+            "rdValue": round(rd_value),
+            "ppfValue": round(ppf_value),
+            "rates": {
+                "sip": SIP_RATE,
+                "lumpsum": LUMPSUM_RATE,
+                "fd": FD_RATE,
+                "rd": RD_RATE,
+                "ppf": PPF_RATE
+            }
+        }
+        
+        # Get AI Strategy Recommendation
+        prompt = f"""
+        You are FinSmart AI, an elite and highly articulate financial advisor algorithm specializing in the Indian market context.
+        A user wants to invest a TOTAL capital of ₹{amount} over a timeframe of {period} {req.periodType}.
+        
+        Using realistic, standardized Indian market assumptions, here are the projected returns for various standardized strategies over the given timeframe:
+        - Monthly SIP (Mutual Funds @ {SIP_RATE}%): ₹{round(sip_value)}
+        - Lumpsum Investment (Upfront @ {LUMPSUM_RATE}%): ₹{round(lumpsum_value)}
+        - Fixed Deposit (FD Safe @ {FD_RATE}%): ₹{round(fd_value)}
+        - Recurring Deposit (RD Safe @ {RD_RATE}%): ₹{round(rd_value)}
+        - Public Provident Fund (PPF @ {PPF_RATE}%): ₹{round(ppf_value)}
+        
+        INSTRUCTIONS:
+        1. Compare these specific strategies and outcome values.
+        2. Give a deep but accessible analytical recommendation on WHICH strategy or blend is the absolute best for their capital and timeframe.
+        3. Explain WHY, taking into account the magic of compounding, the time value of money, and the impact of the investment timeframe on equities vs fixed income risk profiles.
+        4. Briefly contrast the risk of Equities vs the safety of FD/PPFs.
+        5. DO NOT provide generic advice. Be decisive. Provide a rich, insightful response that feels premium.
+        6. Format strictly in Markdown. Use well-structured headings, bolding, and bullet points to make it highly scannable and visually appealing. No standard boilerplate disclaimers. Give a sophisticated financial verdict.
+        """
+        response = model.generate_content(prompt)
+        ai_recommendation = response.text.strip()
+        
+        return {
+            "comparisons": comparison_data,
+            "aiRecommendation": ai_recommendation
+        }
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        print(f"Compare Strategy Error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to generate strategy comparison.")
+
 class CalcRequest(BaseModel):
     type: str
     amount: float

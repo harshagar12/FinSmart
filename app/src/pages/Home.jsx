@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TrendingUp, Calculator, MessageSquare, BookOpen, ArrowRight, Wallet, DollarSign, PiggyBank, CreditCard, Receipt, Target, Sparkles, Activity as ActivityIcon, Loader2 } from 'lucide-react';
+import { TrendingUp, Calculator, MessageSquare, BookOpen, ArrowRight, Wallet, DollarSign, PiggyBank, CreditCard, Receipt, Target, Sparkles, Activity as ActivityIcon, Loader2, GraduationCap, Zap, Scale } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -16,9 +16,12 @@ export default function Home({ onNavigate }) {
 
   const tools = [
     { id: 'calculator', title: 'Calculator', desc: 'Compute returns & yields', icon: Calculator, color: 'bg-emerald-50 text-emerald-600' },
-    { id: 'chatbot', title: 'AI Chat', desc: 'Ask financial questions', icon: MessageSquare, color: 'bg-blue-50 text-blue-600' },
-    { id: 'simulator', title: 'Simulator', desc: 'Trade with paper money', icon: TrendingUp, color: 'bg-emerald-50 text-emerald-600' },
-    { id: 'market', title: 'Market Data', desc: 'Live asset tracking', icon: TrendingUp, color: 'bg-orange-50 text-orange-600' },
+    { id: 'chat', title: 'AI Chat', desc: 'Ask financial questions', icon: MessageSquare, color: 'bg-blue-50 text-blue-600' },
+    { id: 'comparison', title: 'Compare', desc: 'Strategy Analysis', icon: Scale, color: 'bg-teal-50 text-teal-600' },
+    { id: 'simulator', title: 'Simulator', desc: 'Trade with paper money', icon: TrendingUp, color: 'bg-indigo-50 text-indigo-600' },
+    { id: 'market', title: 'Market Data', desc: 'Live asset tracking', icon: ActivityIcon, color: 'bg-orange-50 text-orange-600' },
+    { id: 'learning', title: 'Learning Park', desc: 'Interactive lessons', icon: GraduationCap, color: 'bg-purple-50 text-purple-600' },
+    { id: 'dictionary', title: 'Dictionary', desc: 'Financial jargon', icon: BookOpen, color: 'bg-rose-50 text-rose-600' },
   ];
 
   const handleSubmit = async (e) => {
@@ -53,9 +56,77 @@ export default function Home({ onNavigate }) {
   };
 
   return (
-    <div className="p-4 lg:p-8 max-w-6xl mx-auto space-y-16">
+    <div className="p-4 lg:p-8 max-w-6xl mx-auto space-y-20">
+      {/* Hero Section */}
+      <motion.section 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-white rounded-[2.5rem] border border-emerald-50 shadow-xl shadow-emerald-900/5 overflow-hidden p-8 lg:p-12 relative"
+      >
+        <div className="absolute top-0 right-0 p-12 opacity-[0.03] pointer-events-none">
+           <Zap size={320} className="text-primary" />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center relative z-10">
+          {/* Left Side: Logo and Heading */}
+          <div className="space-y-8">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.1 }}
+              className="flex items-center gap-4"
+            >
+              <div className="w-16 h-16 bg-linear-to-br from-emerald-400 to-emerald-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/30">
+                <Zap size={36} fill="currentColor" />
+              </div>
+              <div>
+                <h1 className="text-slate-900 font-black text-3xl tracking-tight leading-none">Fin<span className="text-primary">Smart</span></h1>
+                <p className="text-slate-400 text-xs font-bold uppercase tracking-[0.2em] mt-1">Intelligence</p>
+              </div>
+            </motion.div>
+            
+            <div className="space-y-4">
+              <motion.h2 
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 }}
+                className="text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-[1.1]"
+              >
+                Your Personal <br />
+                <span className="text-transparent bg-clip-text bg-linear-to-r from-primary to-emerald-600">Financial Genius</span>
+              </motion.h2>
+            </div>
+          </div>
+
+          {/* Right Side: Description */}
+          <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4 }}
+            className="space-y-6 max-w-md"
+          >
+            <p className="text-lg text-slate-500 font-medium leading-relaxed">
+              Navigate the complexities of personal finance with ease. Fin<span className="text-primary font-bold">Smart</span> utilizes advanced AI to demystify investments, assess affordability, and simulate real-time market scenarios.
+            </p>
+            <div className="flex items-center gap-4">
+               <button 
+                 onClick={() => document.getElementById('affordability-section')?.scrollIntoView({ behavior: 'smooth' })} 
+                 className="bg-slate-900 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-xl shadow-slate-900/20 hover:bg-slate-800 transition-all hover:-translate-y-0.5"
+               >
+                 Get Started
+               </button>
+               <button 
+                 onClick={() => document.getElementById('smart-tools-section')?.scrollIntoView({ behavior: 'smooth' })} 
+                 className="bg-emerald-50 text-[#10b77f] px-6 py-3 rounded-xl font-bold text-sm hover:bg-emerald-100 transition-all hover:-translate-y-0.5"
+               >
+                 Explore Tools
+               </button>
+            </div>
+          </motion.div>
+        </div>
+      </motion.section>
+
       {/* Affordability DNA Section */}
-      <section className="bg-white rounded-[2.5rem] border border-emerald-50 shadow-xl shadow-emerald-900/5 overflow-hidden">
+      <section id="affordability-section" className="bg-white rounded-[2.5rem] border border-emerald-50 shadow-xl shadow-emerald-900/5 overflow-hidden scroll-mt-6">
         <div className="grid grid-cols-1 lg:grid-cols-2">
           {/* Left: Input Form */}
           <div className="p-8 lg:p-12 space-y-10">
@@ -187,7 +258,7 @@ export default function Home({ onNavigate }) {
         </div>
       </section>
 
-      <div className="space-y-8">
+      <div id="smart-tools-section" className="space-y-8 scroll-mt-6">
         <div className="flex items-center gap-3">
           <div className="w-1 h-6 bg-[#10b77f] rounded-full" />
           <h2 className="text-2xl font-black text-slate-900 tracking-tight">Smart Tools</h2>

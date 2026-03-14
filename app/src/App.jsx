@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Home, LayoutDashboard, Calculator, MessageSquare, BookOpen, TrendingUp, Zap, GraduationCap, Menu, X } from 'lucide-react';
+import { Home as HomeIcon, LayoutDashboard, Calculator, MessageSquare, BookOpen, TrendingUp, Zap, GraduationCap, Menu, X, Scale } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from './lib/utils';
 import { AuthProvider } from './context/AuthContext';
@@ -12,15 +12,17 @@ import Chatbot from './pages/Chatbot/Chatbot';
 import Simulator from './pages/Simulator';
 import Dictionary from './pages/Dictionary/Dictionary';
 import LearningPark from './pages/LearningPark';
+import Comparison from './pages/Comparison/Comparison';
 
 export default function App() {
   const [currentView, setCurrentView] = useState('home');
 
   const navItems = [
-    { id: 'home', label: 'Home', icon: Home },
+    { id: 'home', label: 'Home', icon: HomeIcon },
     { id: 'learning', label: 'Learning Park', icon: GraduationCap },
     { id: 'market', label: 'Live Market', icon: LayoutDashboard },
     { id: 'simulator', label: 'Simulator', icon: TrendingUp },
+    { id: 'comparison', label: 'Compare', icon: Scale },
     { id: 'calculator', label: 'Calculator', icon: Calculator },
     { id: 'chat', label: 'AI Chat', icon: MessageSquare },
     { id: 'dictionary', label: 'Dictionary', icon: BookOpen },
@@ -34,6 +36,7 @@ export default function App() {
       case 'calculator': return <CalculatorView />;
       case 'chat': return <Chatbot />;
       case 'simulator': return <Simulator onNavigate={setCurrentView} />;
+      case 'comparison': return <Comparison />;
       case 'dictionary': return <Dictionary />;
       default: return <HomeView onNavigate={setCurrentView} />;
     }
